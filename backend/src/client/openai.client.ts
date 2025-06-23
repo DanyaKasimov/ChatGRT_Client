@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import OpenAI from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources/chat';
+import {ApiException} from "../exception/api.exception";
 
 @Injectable()
 export class OpenaiClient {
@@ -31,17 +32,25 @@ export class OpenaiClient {
 
         this.history.push(message);
 
-        const response = await this.openai.chat.completions.create({
-            model: OpenaiClient.MODEL,
-            messages: this.history,
-            max_tokens: OpenaiClient.MAX_TOKENS,
-        });
+        try {
+            const response = await this.openai.chat.completions.create({
+                model: OpenaiClient.MODEL,
+                messages: this.history,
+                max_tokens: OpenaiClient.MAX_TOKENS,
+            });
 
-        const content = response.choices[0]?.message?.content;
-        if (!content) throw new Error('Пустой ответ от OpenAI');
+            const content = response.choices[0]?.message?.content;
+            if (!content) throw new Error('Пустой ответ от OpenAI');
 
-        this.history.push({ role: 'assistant', content });
-        return content;
+            this.history.push({role: 'assistant', content});
+            return content;
+        } catch (error) {
+            if (error.response) {
+                const { status, data } = error.response;
+                throw new ApiException(data, status);
+            }
+            throw new HttpException(`Неизвестная ошибка: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     public async sendText(text: string): Promise<string> {
@@ -52,16 +61,24 @@ export class OpenaiClient {
 
         this.history.push(message);
 
-        const response = await this.openai.chat.completions.create({
-            model: OpenaiClient.MODEL,
-            messages: this.history,
-            max_tokens: OpenaiClient.MAX_TOKENS,
-        });
+        try {
+            const response = await this.openai.chat.completions.create({
+                model: OpenaiClient.MODEL,
+                messages: this.history,
+                max_tokens: OpenaiClient.MAX_TOKENS,
+            });
 
-        const content = response.choices[0]?.message?.content;
-        if (!content) throw new Error('Пустой ответ от OpenAI');
+            const content = response.choices[0]?.message?.content;
+            if (!content) throw new Error('Пустой ответ от OpenAI');
 
-        this.history.push({ role: 'assistant', content });
-        return content;
+            this.history.push({role: 'assistant', content});
+            return content;
+        } catch (error) {
+            if (error.response) {
+                const { status, data } = error.response;
+                throw new ApiException(data, status);
+            }
+            throw new HttpException(`Неизвестная ошибка: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
