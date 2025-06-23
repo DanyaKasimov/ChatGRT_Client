@@ -1,16 +1,5 @@
 <template>
   <div>
-<!--    <div class="history-block">-->
-<!--      <h4>История</h4>-->
-<!--      <ul>-->
-<!--        <li v-for="day in chatDays" :key="day">-->
-<!--          <button @click="fetchMessagesForDay(day)">-->
-<!--            {{ day }}-->
-<!--          </button>-->
-<!--        </li>-->
-<!--      </ul>-->
-<!--    </div>-->
-
     <div ref="chatRef" class="chat-block">
       <div
           v-for="(msg, index) in messages"
@@ -58,7 +47,6 @@ const previewImage = ref(null)
 const chatRef = ref(null)
 
 const chatDays = ref([])
-// const selectedDay = ref(null)
 
 onMounted(() => {
   fetchDays()
